@@ -412,7 +412,7 @@ AZURE_SEARCH_INDEX_NAME=walle-products</pre>
     </div>
 
     <div class="note note-info">
-      This step creates a search index with 8 sample Wall-E Electronics documents. Each document is vectorized using text-embedding-3-large.
+      This step reads 9 documents from the <code>data/</code> folder (.txt, .md, .pdf files) and creates a vector search index. Each document is vectorized using text-embedding-3-large.
     </div>
 
     <div class="step">
@@ -431,8 +431,9 @@ AZURE_SEARCH_INDEX_NAME=walle-products</pre>
         <div class="step-desc">This script:</div>
         <ol>
           <li>Authenticates using your Azure CLI credentials (DefaultAzureCredential)</li>
+          <li>Reads all .txt, .md, and .pdf files from the <code>data/</code> folder</li>
           <li>Creates a search index called <code>walle-products</code></li>
-          <li>Generates embeddings for 8 sample documents using text-embedding-3-large</li>
+          <li>Generates embeddings for each document using text-embedding-3-large</li>
           <li>Uploads documents with vectors to Azure AI Search</li>
         </ol>
       </div>
@@ -704,7 +705,7 @@ What's the price of an iPhone?</pre>
     <ul style="text-align:left;font-size:12px;max-width:600px;margin:0 auto;">
       <li><strong>Evaluation:</strong> Run <code>python 02-evaluation/run_evaluation.py</code> to test quality metrics</li>
       <li><strong>Content Safety:</strong> Explore <code>03-content-safety/</code> for filter configuration</li>
-      <li><strong>Add Your Data:</strong> Edit <code>SAMPLE_DOCUMENTS</code> in create_search_index.py</li>
+      <li><strong>Add Your Data:</strong> Drop .txt, .md, or .pdf files into the <code>data/</code> folder and re-run indexer</li>
       <li><strong>Deploy to Azure:</strong> Run <code>.\04-frontend\deploy-to-azure.ps1</code></li>
       <li><strong>Prompt Flow:</strong> Import <code>01-rag-chatbot/rag-flow/</code> to AI Foundry UI</li>
     </ul>
