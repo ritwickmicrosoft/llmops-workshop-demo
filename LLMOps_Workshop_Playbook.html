@@ -390,7 +390,7 @@ AZURE_OPENAI_ENDPOINT=https://aoai-llmops-demo.openai.azure.com/
 AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-4o
 AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-3-large
 AZURE_SEARCH_ENDPOINT=https://search-llmops-demo.search.windows.net
-AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
+AZURE_SEARCH_INDEX_NAME=walle-products</pre>
       </div>
     </div>
 
@@ -431,7 +431,7 @@ AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
         <div class="step-desc">This script:</div>
         <ol>
           <li>Authenticates using your Azure CLI credentials (DefaultAzureCredential)</li>
-          <li>Creates a search index called <code>contoso-products</code></li>
+          <li>Creates a search index called <code>walle-products</code></li>
           <li>Generates embeddings for 8 sample documents using text-embedding-3-large</li>
           <li>Uploads documents with vectors to Azure AI Search</li>
         </ol>
@@ -454,7 +454,7 @@ AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
   ✓ OpenAI Client: https://aoai-llmops-demo.openai.azure.com/
 
 [3/4] Creating search index...
-  Created index: contoso-products
+  Created index: walle-products
 
 [4/4] Indexing sample documents...
   Processing: Return Policy - Electronics
@@ -477,7 +477,7 @@ AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
       <div class="step-num">4</div>
       <div class="step-content">
         <div class="step-title">Verify the index in Azure Portal (optional)</div>
-        <div class="step-desc">Open Azure Portal → AI Search → search-llmops-demo → Indexes → contoso-products</div>
+        <div class="step-desc">Open Azure Portal → AI Search → search-llmops-demo → Indexes → walle-products</div>
         <p style="font-size:12px;color:var(--muted);">You should see 8 documents with fields: id, title, category, content, last_updated, content_vector</p>
       </div>
     </div>
@@ -534,7 +534,7 @@ AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
       Embedding Model: text-embedding-3-large
     • search-connection → Azure AI Search
       Endpoint: https://search-llmops-demo.search.windows.net
-      Index: contoso-products
+      Index: walle-products
 
   🚀 Starting server at http://localhost:5000
 ============================================================
@@ -664,7 +664,7 @@ What's the price of an iPhone?</pre>
     <h3>❌ "Search index not found"</h3>
     <ul>
       <li>Re-run: <code>python 01-rag-chatbot/create_search_index.py</code></li>
-      <li>Verify index name in .env: <code>AZURE_SEARCH_INDEX_NAME=contoso-products</code></li>
+      <li>Verify index name in .env: <code>AZURE_SEARCH_INDEX_NAME=walle-products</code></li>
     </ul>
 
     <h3>❌ Flask app won't start</h3>

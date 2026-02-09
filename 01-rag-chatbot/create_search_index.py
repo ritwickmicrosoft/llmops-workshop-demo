@@ -46,7 +46,7 @@ except ImportError:
 AZURE_SEARCH_ENDPOINT = os.environ.get("AZURE_SEARCH_ENDPOINT", "https://search-llmops-dev-naxfrjtmsmlvo.search.windows.net")
 AZURE_OPENAI_ENDPOINT = os.environ.get("AZURE_OPENAI_ENDPOINT", "https://aoai-llmops-eastus.openai.azure.com/")
 EMBEDDING_MODEL = os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-large")
-INDEX_NAME = os.environ.get("AZURE_SEARCH_INDEX_NAME", "contoso-products")
+INDEX_NAME = os.environ.get("AZURE_SEARCH_INDEX_NAME", "walle-products")
 
 # Path to data folder (relative to script location)
 SCRIPT_DIR = Path(__file__).parent.parent

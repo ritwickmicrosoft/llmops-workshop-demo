@@ -49,7 +49,7 @@ AZURE_SEARCH_ENDPOINT = os.environ.get(
 # Model configurations
 CHAT_MODEL_DEPLOYMENT = os.environ.get("AZURE_OPENAI_CHAT_DEPLOYMENT", "gpt-4o")
 EMBEDDING_MODEL_DEPLOYMENT = os.environ.get("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-large")
-SEARCH_INDEX_NAME = os.environ.get("AZURE_SEARCH_INDEX_NAME", "contoso-products")
+SEARCH_INDEX_NAME = os.environ.get("AZURE_SEARCH_INDEX_NAME", "walle-products")
 
 # System prompt for the chatbot
 SYSTEM_PROMPT = """You are Wall-E, a friendly AI assistant for Wall-E Electronics, a company that sells consumer electronics products including laptops, headphones, smartwatches, and accessories.

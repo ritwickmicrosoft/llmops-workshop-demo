@@ -10,7 +10,7 @@ from azure.search.documents.models import VectorizedQuery
 from azure.identity import DefaultAzureCredential
 
 
-INDEX_NAME = "contoso-products"
+INDEX_NAME = "walle-products"
 TOP_K = 3  # Number of documents to retrieve
 
 
