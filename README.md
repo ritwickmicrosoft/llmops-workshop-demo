@@ -76,19 +76,27 @@ sequenceDiagram
     F-->>U: Formatted response
 ```
 
-## �🎯 Workshop Overview
+## 🎯 What You'll Learn
 
 Build a complete RAG (Retrieval-Augmented Generation) chatbot for "Wall-E Electronics":
 
-| Module | Topic | Duration |
-|--------|-------|----------|
-| 1 | Environment Setup | 10 min |
-| 2 | Deploy Azure Infrastructure | 25 min |
-| 3 | Create Vector Index | 15 min |
-| 4 | Run RAG Chatbot | 10 min |
-| 5 | Test & Explore | 20 min |
+| Module | Topic | Key Concepts | Azure Services | Difficulty |
+|--------|-------|--------------|----------------|------------|
+| 1 | Environment Setup | SDK auth, RBAC, workspace config | Azure CLI, DefaultAzureCredential | Beginner |
+| 2 | Deploy Azure Infrastructure | IaC, resource provisioning | AI Foundry, OpenAI, AI Search | Beginner |
+| 3 | Create Vector Index | Embeddings, vector search, chunking | Azure OpenAI, AI Search | Intermediate |
+| 4 | Run RAG Chatbot | Retrieval, prompt engineering, context | Flask, GPT-4o, Vector Store | Intermediate |
+| 5 | Test & Explore | Query testing, response quality | Web UI, Azure Portal | Beginner |
 
 **Total Duration:** ~90 minutes
+
+### 🧠 Skills You'll Gain
+
+- ✅ Deploy Azure AI resources with RBAC (no API keys)
+- ✅ Create vector embeddings from documents (txt, md, pdf)
+- ✅ Build a semantic search index with Azure AI Search
+- ✅ Implement RAG pattern with GPT-4o
+- ✅ Build a production-ready chat interface
 
 ## 🔐 Authentication
 
