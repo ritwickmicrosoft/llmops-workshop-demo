@@ -5,7 +5,78 @@
 
 End-to-end LLMOps workshop using Azure AI Foundry to build a RAG-enabled chatbot with vector search and RBAC authentication.
 
-## 🎯 Workshop Overview
+## �️ Architecture
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Client"]
+        UI["Web Chat UI<br/>index.html"]
+    end
+
+    subgraph Backend["⚙️ Flask Backend"]
+        APP["app.py<br/>RBAC Auth"]
+    end
+
+    subgraph Azure["☁️ Azure Cloud"]
+        subgraph AIFoundry["Azure AI Foundry"]
+            FOUNDRY["foundry-llmops-demo<br/>(AIServices)"]
+            PROJECT["proj-llmops-demo"]
+        end
+        
+        subgraph OpenAI["Azure OpenAI"]
+            GPT["gpt-4o<br/>Chat Completion"]
+            EMB["text-embedding-3-large<br/>Embeddings"]
+        end
+        
+        subgraph Search["Azure AI Search"]
+            INDEX["contoso-products<br/>Vector Index"]
+            DOCS["9 Documents<br/>txt, md, pdf"]
+        end
+    end
+
+    subgraph DataFolder["📁 data/"]
+        TXT["*.txt<br/>Product Specs"]
+        MD["*.md<br/>Policies"]
+        PDF["*.pdf<br/>FAQs"]
+    end
+
+    UI -->|"1. User Question"| APP
+    APP -->|"2. Embed Query"| EMB
+    EMB -->|"3. Vector"| INDEX
+    INDEX -->|"4. Top 3 Docs"| APP
+    APP -->|"5. Context + Question"| GPT
+    GPT -->|"6. Answer"| APP
+    APP -->|"7. Response"| UI
+    
+    TXT --> INDEX
+    MD --> INDEX
+    PDF --> INDEX
+    
+    FOUNDRY -.->|"Connection"| OpenAI
+    FOUNDRY -.->|"Connection"| Search
+```
+
+## 🔄 RAG Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant U as 👤 User
+    participant F as 🌐 Flask App
+    participant E as 🧠 Embeddings
+    participant S as 🔍 AI Search
+    participant G as 💬 GPT-4o
+
+    U->>F: "What's the return policy?"
+    F->>E: Generate embedding
+    E-->>F: [0.123, -0.456, ...]
+    F->>S: Vector search (top 3)
+    S-->>F: Return Policy, Warranty, FAQ
+    F->>G: System + Context + Question
+    G-->>F: "Wall-E offers 30-day returns..."
+    F-->>U: Formatted response
+```
+
+## �🎯 Workshop Overview
 
 Build a complete RAG (Retrieval-Augmented Generation) chatbot for "Wall-E Electronics":
 
@@ -41,8 +112,8 @@ Your Azure CLI credentials are used automatically via `DefaultAzureCredential`:
 
 ```powershell
 # Clone the repository
-git clone <repository-url>
-cd llmops-workshop
+git clone https://github.com/ritwickmicrosoft/llmops-workshop-demo.git
+cd llmops-workshop-demo
 
 # Create Python virtual environment
 python -m venv .venv
@@ -170,11 +241,23 @@ llmops-workshop/
 
 ## 🛠️ Azure Resources
 
-| Resource | Type | Purpose |
+```mermaid
+graph LR
+    subgraph RG["Resource Group: rg-llmops-demo"]
+        A["🤖 Azure AI Foundry<br/>foundry-llmops-demo"]
+        B["🧠 Azure OpenAI<br/>aoai-llmops-eastus"]
+        C["🔍 Azure AI Search<br/>search-llmops-dev-*"]
+    end
+    
+    A -->|"RBAC"| B
+    A -->|"RBAC"| C
+```
+
+| Resource | Name | Purpose |
 |----------|------|---------|
-| Azure AI Foundry | AIServices | Unified AI platform |
-| Azure OpenAI | OpenAI | LLM (gpt-4o) + embeddings |
-| Azure AI Search | Search | Vector store for RAG |
+| Azure AI Foundry | `foundry-llmops-demo` | Unified AI platform (AIServices) |
+| Azure OpenAI | `aoai-llmops-eastus` | LLM (gpt-4o) + embeddings |
+| Azure AI Search | `search-llmops-dev-*` | Vector store for RAG |
 
 ## 📄 Sample Documents
 
@@ -191,16 +274,6 @@ The `create_search_index.py` script automatically:
 2. Extracts text from .txt, .md, and .pdf files
 3. Generates vector embeddings using Azure OpenAI
 4. Uploads to Azure AI Search with semantic and vector search
-
-## 🔍 RAG Flow
-
-```
-User Question → Embed (text-embedding-3-large) → Vector Search (AI Search)
-                                                        ↓
-                                              Top 3 Documents
-                                                        ↓
-                    System Prompt + Context + Question → GPT-4o → Answer
-```
 
 ## 🧹 Cleanup
 

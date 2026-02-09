@@ -76,7 +76,10 @@
     th { background: var(--code); font-weight: 600; }
     ul, ol { margin: 8px 0; padding-left: 20px; }
     li { margin: 4px 0; font-size: 13px; }
+    .mermaid { background: var(--code); border-radius: 8px; padding: 16px; margin: 12px 0; overflow-x: auto; }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
 </head>
 <body>
 <div class="wrap">
@@ -123,6 +126,27 @@
     <h2>🏗️ What You'll Build</h2>
     <p style="font-size:13px;margin-bottom:12px;">A complete RAG (Retrieval-Augmented Generation) chatbot for "Wall-E Electronics":</p>
     
+    <div class="mermaid">
+flowchart LR
+    subgraph Client["🖥️ User"]
+        UI["Web Chat"]
+    end
+    subgraph Backend["⚙️ Flask"]
+        APP["app.py"]
+    end
+    subgraph Azure["☁️ Azure"]
+        GPT["gpt-4o"]
+        EMB["Embeddings"]
+        IDX["Vector Index"]
+    end
+    UI -->|1. Question| APP
+    APP -->|2. Embed| EMB
+    EMB -->|3. Search| IDX
+    IDX -->|4. Context| APP
+    APP -->|5. Generate| GPT
+    GPT -->|6. Answer| UI
+    </div>
+
     <table>
       <tr><th>Component</th><th>Azure Service</th><th>Purpose</th></tr>
       <tr><td>AI Platform</td><td>Azure AI Foundry</td><td>Unified AI development hub</td></tr>
@@ -130,14 +154,14 @@
       <tr><td>Embeddings</td><td>Azure OpenAI (text-embedding-3-large)</td><td>Vectorize text</td></tr>
       <tr><td>Vector Store</td><td>Azure AI Search</td><td>Store &amp; search documents</td></tr>
       <tr><td>Frontend</td><td>Flask + HTML</td><td>Chat interface</td></tr>
-      <tr><td>Auth</td><td>Managed Identity / Azure CLI</td><td>RBAC (no keys)</td></tr>
+      <tr><td>Auth</td><td>DefaultAzureCredential</td><td>RBAC (no keys)</td></tr>
     </table>
 
-    <h3>📄 Sample Documents (8 total)</h3>
+    <h3>📄 Sample Documents (9 files in data/ folder)</h3>
     <ul>
-      <li><strong>Products:</strong> Laptop Pro 15, SmartWatch X200, NC500 Headphones, Tablet S10</li>
-      <li><strong>Policies:</strong> Return Policy, Warranty Policy, Shipping Policy</li>
-      <li><strong>Support:</strong> Troubleshooting Guide</li>
+      <li><strong>Products (.txt):</strong> Laptop Pro 15, SmartWatch X200, NC500 Headphones, Tablet S10</li>
+      <li><strong>Policies (.md):</strong> Return Policy, Warranty Policy, Shipping Policy, Troubleshooting Guide</li>
+      <li><strong>Support (.pdf):</strong> FAQ Document</li>
     </ul>
   </section>
 
@@ -164,8 +188,8 @@
       <div class="step-content">
         <div class="step-title">Clone the workshop repository</div>
         <div class="step-desc">Open VS Code terminal (Ctrl+`) and run:</div>
-        <pre>git clone https://github.com/YOUR-ORG/llmops-workshop.git
-cd llmops-workshop</pre>
+        <pre>git clone https://github.com/ritwickmicrosoft/llmops-workshop-demo.git
+cd llmops-workshop-demo</pre>
       </div>
     </div>
 
