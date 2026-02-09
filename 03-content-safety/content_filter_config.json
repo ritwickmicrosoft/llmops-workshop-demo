@@ -1,0 +1,75 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2023-01-01-preview/Microsoft.CognitiveServices.ContentFilter.json",
+  "name": "walle-chatbot-filter",
+  "description": "Content filter configuration for Wall-E Electronics RAG Chatbot",
+  "basePolicyName": "Microsoft.DefaultV2",
+  "inputFilters": {
+    "hate": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Medium",
+      "annotate": true
+    },
+    "sexual": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "selfHarm": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "violence": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "jailbreak": {
+      "filterEnabled": true,
+      "annotate": true
+    },
+    "indirectAttacks": {
+      "filterEnabled": true,
+      "annotate": true
+    }
+  },
+  "outputFilters": {
+    "hate": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Medium",
+      "annotate": true
+    },
+    "sexual": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "selfHarm": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "violence": {
+      "filterEnabled": true,
+      "blocklistEnabled": false,
+      "severityThreshold": "Low",
+      "annotate": true
+    },
+    "protectedMaterialText": {
+      "filterEnabled": true,
+      "annotate": true
+    },
+    "protectedMaterialCode": {
+      "filterEnabled": true,
+      "annotate": true
+    }
+  }
+}
+

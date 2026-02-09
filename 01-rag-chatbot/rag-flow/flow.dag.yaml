@@ -1,0 +1,70 @@
+$schema: https://azuremlschemas.azureedge.net/promptflow/latest/Flow.schema.json
+name: walle-rag-chatbot
+display_name: Wall-E RAG Chatbot
+description: A RAG-enabled chatbot for Wall-E Electronics customer support
+type: chat
+
+inputs:
+  chat_history:
+    type: list
+    default: []
+  question:
+    type: string
+    is_chat_input: true
+
+outputs:
+  answer:
+    type: string
+    reference: ${generate_response.output}
+    is_chat_output: true
+  context:
+    type: string
+    reference: ${retrieve_documents.output}
+
+nodes:
+  # Node 1: Generate embedding for the user question
+  - name: embed_question
+    type: python
+    source:
+      type: code
+      path: embed_question.py
+    inputs:
+      question: ${inputs.question}
+    connection: aoai-connection
+    
+  # Node 2: Retrieve relevant documents from AI Search
+  - name: retrieve_documents
+    type: python
+    source:
+      type: code
+      path: retrieve_documents.py
+    inputs:
+      question: ${inputs.question}
+      question_embedding: ${embed_question.output}
+    connection: search-connection
+    
+  # Node 3: Format the prompt with context
+  - name: format_prompt
+    type: prompt
+    source:
+      type: code
+      path: system_prompt.jinja2
+    inputs:
+      context: ${retrieve_documents.output}
+      chat_history: ${inputs.chat_history}
+      question: ${inputs.question}
+      
+  # Node 4: Generate response using GPT-4o
+  - name: generate_response
+    type: llm
+    source:
+      type: code
+      path: generate_response.jinja2
+    inputs:
+      prompt_text: ${format_prompt.output}
+      deployment_name: gpt-4o
+      max_tokens: 1000
+      temperature: 0.3
+    connection: aoai-connection
+    api: chat
+

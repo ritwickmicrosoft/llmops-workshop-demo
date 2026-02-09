@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wall-E Electronics - AI Assistant</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --user-bg: #3b82f6;
+            --bot-bg: #334155;
+            --border: rgba(255,255,255,0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo { font-size: 28px; }
+        
+        .header-text h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .header-text p {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        
+        .status {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+        }
+        
+        .status-dot.offline { background: #ef4444; }
+        .status-dot.connecting { background: #f59e0b; animation: pulse 1s infinite; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-bottom: 16px;
+        }
+        
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+        }
+        
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .message.bot .avatar { background: var(--accent); }
+        .message.user .avatar { background: var(--user-bg); }
+        
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .message.bot .bubble {
+            background: var(--bot-bg);
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.user .bubble {
+            background: var(--user-bg);
+            border-bottom-right-radius: 4px;
+        }
+        
+        .bubble p { margin-bottom: 8px; }
+        .bubble p:last-child { margin-bottom: 0; }
+        .bubble ul, .bubble ol { margin: 8px 0; padding-left: 20px; }
+        .bubble li { margin: 4px 0; }
+        .bubble code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .typing {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+        
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: var(--muted);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing span:nth-child(1) { animation-delay: 0s; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+        
+        #userInput {
+            flex: 1;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        #userInput:focus {
+            border-color: var(--accent);
+        }
+        
+        #userInput::placeholder {
+            color: var(--muted);
+        }
+        
+        #sendBtn {
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            padding: 14px 24px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        #sendBtn:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+        
+        #sendBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .suggestion {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .suggestion:hover {
+            border-color: var(--accent);
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .welcome {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .welcome h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .welcome p {
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        
+        .config-panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .config-panel summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .config-panel .fields {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        
+        .config-panel label {
+            font-size: 12px;
+            color: var(--muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .config-panel input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-size: 13px;
+        }
+        
+        .config-panel input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 16px;
+            color: var(--muted);
+            font-size: 11px;
+            border-top: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">🤖</div>
+        <div class="header-text">
+            <h1>Wall-E Electronics</h1>
+            <p>AI Customer Support — Powered by Azure AI Foundry</p>
+        </div>
+        <div class="status">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+    
+    <main>
+        <details class="config-panel" id="configPanel">
+            <summary>⚙️ Configuration</summary>
+            <div class="fields">
+                <div>
+                    <label>Azure OpenAI Endpoint</label>
+                    <input type="text" id="endpoint" placeholder="https://your-resource.openai.azure.com/">
+                </div>
+                <div>
+                    <label>Deployment Name</label>
+                    <input type="text" id="deployment" value="gpt-4o">
+                </div>
+                <div>
+                    <label>API Key (or leave empty for RBAC)</label>
+                    <input type="password" id="apiKey" placeholder="Optional - uses browser auth if empty">
+                </div>
+                <button onclick="saveConfig()" style="background:var(--accent);border:none;border-radius:8px;padding:10px 16px;color:white;cursor:pointer;font-size:13px;">
+                    Save & Connect
+                </button>
+            </div>
+        </details>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="welcome">
+                <h2>🤖 Welcome to Wall-E Support</h2>
+                <p>I can help you with product information, returns, warranties, and troubleshooting.</p>
+            </div>
+            
+            <div class="suggestions" id="suggestions">
+                <div class="suggestion" onclick="sendSuggestion(this)">What's the return policy?</div>
+                <div class="suggestion" onclick="sendSuggestion(this)">How do I reset my SmartWatch?</div>
+                <div class="suggestion" onclick="sendSuggestion(this)">What's covered under warranty?</div>
+                <div class="suggestion" onclick="sendSuggestion(this)">Laptop Pro 15 specs</div>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="userInput" placeholder="Ask me anything about Wall-E Electronics products..." 
+                   onkeypress="if(event.key==='Enter') sendMessage()">
+            <button id="sendBtn" onclick="sendMessage()">
+                Send
+                <span>→</span>
+            </button>
+        </div>
+    </main>
+    
+    <footer>
+        LLMOps Workshop Demo | Azure AI Foundry | Prompt Flow + AI Search + Azure OpenAI
+    </footer>
+
+    <script>
+        // Configuration
+        let config = {
+            endpoint: localStorage.getItem('aoai_endpoint') || '',
+            deployment: localStorage.getItem('aoai_deployment') || 'gpt-4o',
+            apiKey: localStorage.getItem('aoai_key') || ''
+        };
+        
+        // System prompt for the chatbot
+        const SYSTEM_PROMPT = `You are Wall-E, a friendly AI assistant for Wall-E Electronics, a company that sells consumer electronics products including laptops, headphones, smartwatches, and accessories.
+
+Your role:
+- Answer customer questions about products, policies, and support
+- Be concise, friendly, and helpful like Wall-E the robot
+- If you don't know something, say so honestly
+- Keep responses under 200 words unless more detail is needed
+
+Key Information:
+- Return Policy: 30 days for unopened items, 14 days for opened (15% restocking fee for headphones)
+- Laptop Warranty: 2 years
+- Smartwatch/Headphones Warranty: 1 year
+- Support: 1-800-WALL-E or support@wall-e.com`;
+
+        // Chat history for context
+        let chatHistory = [];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('endpoint').value = config.endpoint;
+            document.getElementById('deployment').value = config.deployment;
+            document.getElementById('apiKey').value = config.apiKey;
+            updateStatus();
+        });
+        
+        function saveConfig() {
+            config.endpoint = document.getElementById('endpoint').value.trim();
+            config.deployment = document.getElementById('deployment').value.trim();
+            config.apiKey = document.getElementById('apiKey').value.trim();
+            
+            localStorage.setItem('aoai_endpoint', config.endpoint);
+            localStorage.setItem('aoai_deployment', config.deployment);
+            localStorage.setItem('aoai_key', config.apiKey);
+            
+            document.getElementById('configPanel').open = false;
+            updateStatus();
+        }
+        
+        function updateStatus() {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            if (config.useBackend) {
+                dot.className = 'status-dot';
+                text.textContent = 'Connected (RBAC)';
+            } else if (!config.endpoint) {
+                dot.className = 'status-dot offline';
+                text.textContent = 'Not configured';
+            } else {
+                dot.className = 'status-dot';
+                text.textContent = 'Connected';
+            }
+        }
+        
+        function sendSuggestion(el) {
+            document.getElementById('userInput').value = el.textContent;
+            sendMessage();
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!config.endpoint && !config.useBackend) {
+                alert('Please configure your Azure OpenAI endpoint first, or start the backend server.');
+                document.getElementById('configPanel').open = true;
+                return;
+            }
+            
+            // Clear input and suggestions
+            input.value = '';
+            document.getElementById('suggestions').style.display = 'none';
+            document.querySelector('.welcome')?.remove();
+            
+            // Add user message
+            addMessage(message, 'user');
+            
+            // Add typing indicator
+            const typingId = addTypingIndicator();
+            
+            // Disable send button
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            
+            try {
+                const response = await callAzureOpenAI(message);
+                removeTypingIndicator(typingId);
+                addMessage(response, 'bot');
+            } catch (error) {
+                removeTypingIndicator(typingId);
+                addMessage(`Sorry, I encountered an error: ${error.message}`, 'bot');
+            }
+            
+            sendBtn.disabled = false;
+            input.focus();
+        }
+        
+        function addMessage(text, role) {
+            const container = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = role === 'user' ? '👤' : '🤖';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = formatMessage(text);
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+            container.appendChild(messageDiv);
+            
+            container.scrollTop = container.scrollHeight;
+            
+            // Add to chat history
+            chatHistory.push({ role: role === 'user' ? 'user' : 'assistant', content: text });
+            
+            // Keep only last 10 messages for context
+            if (chatHistory.length > 10) {
+                chatHistory = chatHistory.slice(-10);
+            }
+        }
+        
+        function formatMessage(text) {
+            // Basic markdown-like formatting
+            return text
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code>$1</code>')
+                .replace(/^(.*)$/gm, '<p>$1</p>')
+                .replace(/<p><\/p>/g, '');
+        }
+        
+        function addTypingIndicator() {
+            const container = document.getElementById('chatContainer');
+            const id = 'typing-' + Date.now();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            messageDiv.id = id;
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = '🤖';
+            
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+            container.appendChild(messageDiv);
+            
+            container.scrollTop = container.scrollHeight;
+            
+            return id;
+        }
+        
+        function removeTypingIndicator(id) {
+            document.getElementById(id)?.remove();
+        }
+        
+        async function callAzureOpenAI(message) {
+            // Check if using backend proxy (RBAC) or direct API call
+            const useBackend = !config.apiKey || config.useBackend;
+            
+            if (useBackend) {
+                // Use backend proxy with RBAC authentication
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        history: chatHistory,
+                        use_rag: true
+                    })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error || `API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.response;
+            } else {
+                // Direct API call with API key
+                const url = `${config.endpoint.replace(/\/$/, '')}/openai/deployments/${config.deployment}/chat/completions?api-version=2024-02-01`;
+                
+                const body = {
+                    messages: [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                        ...chatHistory,
+                        { role: 'user', content: message }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.3
+                };
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'api-key': config.apiKey
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(error.error?.message || `API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.choices[0].message.content;
+            }
+        }
+        
+        // Check backend health on load
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    config.useBackend = true;
+                    config.mode = data.mode || 'Azure AI Foundry';
+                    
+                    // Update config from backend
+                    if (data.services?.promptflow?.endpoint) {
+                        config.endpoint = data.services.promptflow.endpoint;
+                        config.deployment = data.services.promptflow.deployment;
+                    } else if (data.services?.openai?.endpoint) {
+                        config.endpoint = data.services.openai.endpoint;
+                        config.deployment = data.services.openai.deployment;
+                    }
+                    
+                    document.getElementById('endpoint').value = config.endpoint || '';
+                    document.getElementById('deployment').value = config.deployment || 'gpt-4o';
+                    document.getElementById('apiKey').placeholder = 'Not needed - using RBAC';
+                    
+                    // Update status to show Azure AI Foundry mode
+                    const dot = document.getElementById('statusDot');
+                    const text = document.getElementById('statusText');
+                    dot.className = 'status-dot';
+                    text.textContent = data.mode || 'Connected (RBAC)';
+                    
+                    // Hide config panel since backend is configured
+                    document.getElementById('configPanel').style.display = 'none';
+                }
+            } catch (e) {
+                // Backend not available, will require manual config
+                console.log('Backend not available, using direct API mode');
+            }
+        }
+        
+        // Check backend on load
+        checkBackendHealth();
+    </script>
+</body>
+</html>

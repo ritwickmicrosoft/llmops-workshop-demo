@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLMOps Workshop Playbook — Azure AI Foundry</title>
+  <style>
+    :root {
+      --bg: #0b0f19; --card: #111827; --text: #e5e7eb; --muted: #9ca3af;
+      --link: #93c5fd; --border: rgba(255,255,255,0.10); --ok: #34d399;
+      --warn: #fbbf24; --bad: #fb7185; --code: #0a1226;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35); --radius: 16px; --accent: #8b5cf6;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    @media (prefers-color-scheme: light) {
+      :root { --bg: #f6f7fb; --card: #fff; --text: #0f172a; --muted: #475569;
+        --link: #7c3aed; --border: rgba(2,6,23,0.10); --code: #f1f5f9;
+        --shadow: 0 10px 30px rgba(2,6,23,0.10); }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: var(--sans); color: var(--text); line-height: 1.6;
+      background: radial-gradient(1200px 800px at 10% 0%, rgba(139,92,246,0.15), transparent 55%),
+        radial-gradient(1200px 800px at 90% 10%, rgba(52,211,153,0.12), transparent 55%), var(--bg); }
+    a { color: var(--link); text-decoration: none; } a:hover { text-decoration: underline; }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 24px 16px 60px; }
+    header { text-align: center; margin-bottom: 24px; }
+    .logo { font-size: 44px; margin-bottom: 4px; }
+    .title { font-size: 26px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--ok));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .meta-row { display: flex; justify-content: center; gap: 18px; margin-top: 10px; flex-wrap: wrap; }
+    .meta-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+    .pillrow { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
+    .pill { border: 1px solid var(--border); background: color-mix(in srgb, var(--card) 75%, transparent);
+      padding: 3px 8px; border-radius: 999px; font-size: 10px; color: var(--muted); }
+    .card { background: color-mix(in srgb, var(--card) 95%, transparent); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; margin-bottom: 14px; }
+    .module { border-left: 4px solid var(--accent); }
+    .module-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .module-number { background: var(--accent); color: white; font-weight: 700; font-size: 12px;
+      padding: 2px 9px; border-radius: 999px; }
+    .module-title { font-size: 16px; font-weight: 700; flex: 1; }
+    .module-time { font-size: 11px; color: var(--muted); background: color-mix(in srgb, var(--card) 60%, transparent);
+      padding: 2px 7px; border-radius: 999px; border: 1px solid var(--border); }
+    .step { display: flex; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .step:last-child { border-bottom: none; }
+    .step-num { background: var(--accent); color: white; font-weight: 700; font-size: 11px;
+      min-width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+    .step-desc { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    pre { margin: 6px 0; padding: 12px 14px; border-radius: 8px; background: var(--code);
+      border: 1px solid var(--border); overflow-x: auto; font-family: var(--mono); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+    code { font-family: var(--mono); font-size: 11px; background: var(--code); padding: 2px 5px; border-radius: 4px; }
+    .note { border-radius: 8px; padding: 10px 14px; margin: 10px 0; font-size: 12px; }
+    .note-info { background: color-mix(in srgb, var(--link) 12%, transparent); border: 1px solid color-mix(in srgb, var(--link) 30%, transparent); }
+    .note-info::before { content: "💡 "; font-weight: 700; }
+    .note-success { background: color-mix(in srgb, var(--ok) 12%, transparent); border: 1px solid color-mix(in srgb, var(--ok) 30%, transparent); }
+    .note-success::before { content: "✅ "; font-weight: 700; }
+    .note-warn { background: color-mix(in srgb, var(--warn) 15%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); }
+    .note-warn::before { content: "⚠️ "; font-weight: 700; }
+    .note-rbac { background: color-mix(in srgb, #06b6d4 12%, transparent); border: 1px solid color-mix(in srgb, #06b6d4 30%, transparent); }
+    .note-rbac::before { content: "🔐 "; font-weight: 700; }
+    .toc { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin-bottom: 16px; }
+    .toc-item { display: flex; align-items: center; gap: 6px; padding: 10px 14px;
+      background: color-mix(in srgb, var(--card) 80%, transparent); border: 1px solid var(--border);
+      border-radius: 8px; text-decoration: none; color: var(--text); font-size: 12px; transition: all 0.2s; }
+    .toc-item:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
+    .toc-num { background: var(--accent); color: white; font-weight: 700; font-size: 10px; padding: 2px 7px; border-radius: 999px; }
+    footer { text-align: center; margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
+    h2 { font-size: 18px; margin: 0 0 12px 0; color: var(--text); }
+    h3 { font-size: 15px; margin: 16px 0 8px 0; color: var(--text); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 10px 0; }
+    th, td { padding: 8px 10px; text-align: left; border: 1px solid var(--border); }
+    th { background: var(--code); font-weight: 600; }
+    ul, ol { margin: 8px 0; padding-left: 20px; }
+    li { margin: 4px 0; font-size: 13px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">🤖</div>
+    <div class="title">LLMOps Workshop Playbook</div>
+    <div class="subtitle">RAG Chatbot with Azure AI Foundry — Step-by-Step Hands-On Lab</div>
+    <div class="meta-row">
+      <div class="meta-item">⏱️ ~2 hours</div>
+      <div class="meta-item">👥 Individual or team</div>
+      <div class="meta-item">💻 VS Code + Azure CLI</div>
+    </div>
+    <div class="pillrow">
+      <span class="pill">Azure AI Foundry</span>
+      <span class="pill">Azure OpenAI (gpt-4o)</span>
+      <span class="pill">Azure AI Search</span>
+      <span class="pill">RAG Pattern</span>
+      <span class="pill">Vector Embeddings</span>
+      <span class="pill">RBAC (No Keys)</span>
+    </div>
+  </header>
+
+  <!-- Prerequisites Card -->
+  <section class="card">
+    <h2>📋 Prerequisites</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">Complete these before starting the workshop:</p>
+    
+    <table>
+      <tr><th style="width:30%">Requirement</th><th>Details</th></tr>
+      <tr><td>Azure Subscription</td><td>With permissions to create resources (Contributor or Owner role)</td></tr>
+      <tr><td>Azure CLI</td><td>Version 2.50+ — <code>az --version</code> to check</td></tr>
+      <tr><td>Python</td><td>Version 3.10+ with pip — <code>python --version</code></td></tr>
+      <tr><td>VS Code</td><td>With Python extension installed</td></tr>
+      <tr><td>Git</td><td>To clone the workshop repo</td></tr>
+    </table>
+
+    <div class="note note-rbac">
+      <strong>RBAC Authentication:</strong> This workshop uses role-based access control (RBAC) with your Azure identity — no API keys required! Your Azure CLI login credentials are used automatically.
+    </div>
+  </section>
+
+  <!-- Architecture Overview -->
+  <section class="card">
+    <h2>🏗️ What You'll Build</h2>
+    <p style="font-size:13px;margin-bottom:12px;">A complete RAG (Retrieval-Augmented Generation) chatbot for "Wall-E Electronics":</p>
+    
+    <table>
+      <tr><th>Component</th><th>Azure Service</th><th>Purpose</th></tr>
+      <tr><td>AI Platform</td><td>Azure AI Foundry</td><td>Unified AI development hub</td></tr>
+      <tr><td>LLM</td><td>Azure OpenAI (gpt-4o)</td><td>Generate responses</td></tr>
+      <tr><td>Embeddings</td><td>Azure OpenAI (text-embedding-3-large)</td><td>Vectorize text</td></tr>
+      <tr><td>Vector Store</td><td>Azure AI Search</td><td>Store &amp; search documents</td></tr>
+      <tr><td>Frontend</td><td>Flask + HTML</td><td>Chat interface</td></tr>
+      <tr><td>Auth</td><td>Managed Identity / Azure CLI</td><td>RBAC (no keys)</td></tr>
+    </table>
+
+    <h3>📄 Sample Documents (8 total)</h3>
+    <ul>
+      <li><strong>Products:</strong> Laptop Pro 15, SmartWatch X200, NC500 Headphones, Tablet S10</li>
+      <li><strong>Policies:</strong> Return Policy, Warranty Policy, Shipping Policy</li>
+      <li><strong>Support:</strong> Troubleshooting Guide</li>
+    </ul>
+  </section>
+
+  <!-- Table of Contents -->
+  <div class="toc">
+    <a href="#m1" class="toc-item"><span class="toc-num">1</span> Environment Setup</a>
+    <a href="#m2" class="toc-item"><span class="toc-num">2</span> Deploy Infrastructure</a>
+    <a href="#m3" class="toc-item"><span class="toc-num">3</span> Create Vector Index</a>
+    <a href="#m4" class="toc-item"><span class="toc-num">4</span> Run RAG Chatbot</a>
+    <a href="#m5" class="toc-item"><span class="toc-num">5</span> Test &amp; Explore</a>
+    <a href="#troubleshooting" class="toc-item"><span class="toc-num">?</span> Troubleshooting</a>
+  </div>
+
+  <!-- Module 1: Environment Setup -->
+  <section id="m1" class="card module">
+    <div class="module-header">
+      <span class="module-number">1</span>
+      <span class="module-title">Environment Setup</span>
+      <span class="module-time">10 min</span>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Clone the workshop repository</div>
+        <div class="step-desc">Open VS Code terminal (Ctrl+`) and run:</div>
+        <pre>git clone https://github.com/YOUR-ORG/llmops-workshop.git
+cd llmops-workshop</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Create Python virtual environment</div>
+        <pre># Create virtual environment
+python -m venv .venv
+
+# Activate it (Windows PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# Or on Mac/Linux:
+# source .venv/bin/activate</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Install Python dependencies</div>
+        <pre>pip install -r requirements.txt</pre>
+        <div class="step-desc">Installs: azure-identity, azure-search-documents, openai, flask, flask-cors</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Login to Azure CLI</div>
+        <pre># Login to Azure
+az login
+
+# Set your subscription (if you have multiple)
+az account set --subscription "YOUR-SUBSCRIPTION-NAME-OR-ID"
+
+# Verify you're logged in
+az account show --query "{name:name, id:id}" -o table</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Set environment variables</div>
+        <div class="step-desc">These variables are used throughout the workshop:</div>
+        <pre># PowerShell
+$env:AZURE_SUBSCRIPTION_ID = (az account show --query id -o tsv)
+$env:AZURE_RESOURCE_GROUP = "rg-llmops-demo"
+$env:AZURE_LOCATION = "eastus"</pre>
+      </div>
+    </div>
+
+    <div class="note note-success">
+      <strong>Checkpoint:</strong> You should see your subscription name when running <code>az account show</code>
+    </div>
+  </section>
+
+  <!-- Module 2: Deploy Infrastructure -->
+  <section id="m2" class="card module">
+    <div class="module-header">
+      <span class="module-number">2</span>
+      <span class="module-title">Deploy Azure Infrastructure</span>
+      <span class="module-time">25 min</span>
+    </div>
+
+    <div class="note note-info">
+      We'll create all resources via Azure CLI commands. This gives you visibility into what's being deployed.
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Create Resource Group</div>
+        <pre>az group create --name $env:AZURE_RESOURCE_GROUP --location $env:AZURE_LOCATION</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Create Azure AI Foundry Resource</div>
+        <div class="step-desc">This creates the AI Foundry resource with public network access enabled:</div>
+        <pre>az cognitiveservices account create `
+  --name "foundry-llmops-demo" `
+  --resource-group $env:AZURE_RESOURCE_GROUP `
+  --location $env:AZURE_LOCATION `
+  --kind AIServices `
+  --sku S0 `
+  --custom-domain "foundry-llmops-demo"</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Create Azure OpenAI Resource</div>
+        <div class="step-desc">We create a separate OpenAI resource for model deployments:</div>
+        <pre>az cognitiveservices account create `
+  --name "aoai-llmops-demo" `
+  --resource-group $env:AZURE_RESOURCE_GROUP `
+  --location $env:AZURE_LOCATION `
+  --kind OpenAI `
+  --sku S0 `
+  --custom-domain "aoai-llmops-demo"
+
+# Disable key-based auth (RBAC only)
+az resource update `
+  --ids $(az cognitiveservices account show --name aoai-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP --query id -o tsv) `
+  --set properties.disableLocalAuth=true properties.publicNetworkAccess=Enabled</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Deploy GPT-4o Model</div>
+        <pre>az cognitiveservices account deployment create `
+  --name "aoai-llmops-demo" `
+  --resource-group $env:AZURE_RESOURCE_GROUP `
+  --deployment-name "gpt-4o" `
+  --model-name "gpt-4o" `
+  --model-version "2024-11-20" `
+  --model-format OpenAI `
+  --sku-capacity 10 `
+  --sku-name Standard</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Deploy Embedding Model</div>
+        <pre>az cognitiveservices account deployment create `
+  --name "aoai-llmops-demo" `
+  --resource-group $env:AZURE_RESOURCE_GROUP `
+  --deployment-name "text-embedding-3-large" `
+  --model-name "text-embedding-3-large" `
+  --model-version "1" `
+  --model-format OpenAI `
+  --sku-capacity 10 `
+  --sku-name Standard</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Create Azure AI Search</div>
+        <pre>az search service create `
+  --name "search-llmops-demo" `
+  --resource-group $env:AZURE_RESOURCE_GROUP `
+  --location $env:AZURE_LOCATION `
+  --sku Basic `
+  --partition-count 1 `
+  --replica-count 1</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <div class="step-title">Assign RBAC Roles to Your User</div>
+        <div class="step-desc">Grant yourself permissions to use these services:</div>
+        <pre># Get your user ID
+$myId = (az ad signed-in-user show --query id -o tsv)
+
+# OpenAI permissions
+az role assignment create `
+  --assignee $myId `
+  --role "Cognitive Services OpenAI User" `
+  --scope $(az cognitiveservices account show --name aoai-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP --query id -o tsv)
+
+# Search permissions
+az role assignment create `
+  --assignee $myId `
+  --role "Search Index Data Contributor" `
+  --scope $(az search service show --name search-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP --query id -o tsv)
+
+az role assignment create `
+  --assignee $myId `
+  --role "Search Service Contributor" `
+  --scope $(az search service show --name search-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP --query id -o tsv)</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-content">
+        <div class="step-title">Update .env file with your endpoints</div>
+        <div class="step-desc">Copy the example and update with your resource names:</div>
+        <pre># Copy the example file
+Copy-Item .env.example .env
+
+# Edit .env with your endpoints:
+AZURE_OPENAI_ENDPOINT=https://aoai-llmops-demo.openai.azure.com/
+AZURE_OPENAI_CHAT_DEPLOYMENT=gpt-4o
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT=text-embedding-3-large
+AZURE_SEARCH_ENDPOINT=https://search-llmops-demo.search.windows.net
+AZURE_SEARCH_INDEX_NAME=contoso-products</pre>
+      </div>
+    </div>
+
+    <div class="note note-warn">
+      <strong>Wait 2-3 minutes</strong> for RBAC role assignments to propagate before proceeding.
+    </div>
+
+    <div class="note note-success">
+      <strong>Checkpoint:</strong> Run <code>az cognitiveservices account deployment list --name aoai-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP -o table</code> — you should see gpt-4o and text-embedding-3-large.
+    </div>
+  </section>
+
+  <!-- Module 3: Create Vector Index -->
+  <section id="m3" class="card module">
+    <div class="module-header">
+      <span class="module-number">3</span>
+      <span class="module-title">Create Vector Index with Sample Documents</span>
+      <span class="module-time">15 min</span>
+    </div>
+
+    <div class="note note-info">
+      This step creates a search index with 8 sample Wall-E Electronics documents. Each document is vectorized using text-embedding-3-large.
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Navigate to the RAG folder</div>
+        <pre>cd 01-rag-chatbot</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Run the index creation script</div>
+        <pre>python create_search_index.py</pre>
+        <div class="step-desc">This script:</div>
+        <ol>
+          <li>Authenticates using your Azure CLI credentials (DefaultAzureCredential)</li>
+          <li>Creates a search index called <code>contoso-products</code></li>
+          <li>Generates embeddings for 8 sample documents using text-embedding-3-large</li>
+          <li>Uploads documents with vectors to Azure AI Search</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Expected output</div>
+        <pre>============================================================
+  LLMOps Workshop - Create AI Search Index
+============================================================
+
+[1/4] Authenticating with Azure...
+  ✓ Using DefaultAzureCredential (RBAC)
+
+[2/4] Initializing clients...
+  ✓ Search Index Client: https://search-llmops-demo.search.windows.net
+  ✓ OpenAI Client: https://aoai-llmops-demo.openai.azure.com/
+
+[3/4] Creating search index...
+  Created index: contoso-products
+
+[4/4] Indexing sample documents...
+  Processing: Return Policy - Electronics
+  Processing: SmartWatch X200 User Guide
+  Processing: Warranty Policy
+  Processing: Wall-E Laptop Pro 15 Specifications
+  Processing: Common Troubleshooting Steps
+  Processing: NC500 Noise-Cancelling Headphones
+  Processing: Shipping and Delivery Policy
+  Processing: Wall-E Tablet S10 Guide
+  Indexed 8/8 documents
+
+============================================================
+  ✓ Index creation complete!
+============================================================</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Verify the index in Azure Portal (optional)</div>
+        <div class="step-desc">Open Azure Portal → AI Search → search-llmops-demo → Indexes → contoso-products</div>
+        <p style="font-size:12px;color:var(--muted);">You should see 8 documents with fields: id, title, category, content, last_updated, content_vector</p>
+      </div>
+    </div>
+
+    <div class="note note-success">
+      <strong>Checkpoint:</strong> The script should report "Indexed 8/8 documents"
+    </div>
+  </section>
+
+  <!-- Module 4: Run RAG Chatbot -->
+  <section id="m4" class="card module">
+    <div class="module-header">
+      <span class="module-number">4</span>
+      <span class="module-title">Run the RAG Chatbot</span>
+      <span class="module-time">10 min</span>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Navigate to the frontend folder</div>
+        <pre>cd ../04-frontend</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Start the Flask server</div>
+        <pre>python app.py</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Expected startup output</div>
+        <pre>============================================================
+  🤖 Wall-E Electronics - RAG Chatbot
+  Powered by Azure AI Foundry
+============================================================
+
+  🔐 Authentication: RBAC (Managed Identity / Azure CLI)
+
+  🏗️  Azure AI Foundry:
+    • Resource: foundry-llmops-demo
+    • Project: proj-llmops-demo
+    • Endpoint: https://foundry-llmops-demo.services.ai.azure.com/
+
+  📡 Foundry Connections:
+    • aoai-connection → Azure OpenAI
+      Endpoint: https://aoai-llmops-demo.openai.azure.com/
+      Chat Model: gpt-4o
+      Embedding Model: text-embedding-3-large
+    • search-connection → Azure AI Search
+      Endpoint: https://search-llmops-demo.search.windows.net
+      Index: contoso-products
+
+  🚀 Starting server at http://localhost:5000
+============================================================
+ * Running on http://127.0.0.1:5000</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Open the chat interface</div>
+        <div class="step-desc">Open your browser to:</div>
+        <pre>http://localhost:5000</pre>
+        <p style="font-size:12px;color:var(--muted);">You'll see a dark-themed chat interface with "Wall-E Electronics" branding.</p>
+      </div>
+    </div>
+
+    <div class="note note-info">
+      The "ImdsCredential.get_token failed" message is normal when running locally — it means Managed Identity isn't available, so it falls back to Azure CLI credentials.
+    </div>
+  </section>
+
+  <!-- Module 5: Test & Explore -->
+  <section id="m5" class="card module">
+    <div class="module-header">
+      <span class="module-number">5</span>
+      <span class="module-title">Test &amp; Explore the RAG Chatbot</span>
+      <span class="module-time">20 min</span>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Test product questions</div>
+        <div class="step-desc">Try these queries in the chat:</div>
+        <pre>What laptops do you have?
+What are the specs of the Laptop Pro 15?
+How much are the NC500 headphones?
+Tell me about the SmartWatch X200</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Test policy questions</div>
+        <pre>What is the return policy for headphones?
+What's covered under warranty?
+How long is the warranty on laptops?
+What shipping options do you offer?</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Test troubleshooting questions</div>
+        <pre>How do I reset my SmartWatch X200?
+My laptop won't turn on, what should I do?
+My headphones won't connect via Bluetooth</pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Observe the RAG in action</div>
+        <div class="step-desc">Notice how the chatbot:</div>
+        <ul>
+          <li>Answers based on actual document content (grounded)</li>
+          <li>Provides specific details like prices, specs, and policies</li>
+          <li>Says "I don't know" when asked about products not in the index</li>
+          <li>Doesn't hallucinate information</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Try a question outside the knowledge base</div>
+        <pre>Do you sell televisions?
+What's the price of an iPhone?</pre>
+        <div class="step-desc">The chatbot should acknowledge it doesn't have information about these products.</div>
+      </div>
+    </div>
+
+    <h3>🔍 Understanding the RAG Flow</h3>
+    <p style="font-size:13px;margin-bottom:10px;">Each query goes through these steps:</p>
+    <table>
+      <tr><th>Step</th><th>What Happens</th><th>Azure Service</th></tr>
+      <tr><td>1. Embed Query</td><td>User question → 3072-dim vector</td><td>Azure OpenAI (text-embedding-3-large)</td></tr>
+      <tr><td>2. Vector Search</td><td>Find top 3 similar documents</td><td>Azure AI Search (HNSW algorithm)</td></tr>
+      <tr><td>3. Augment Prompt</td><td>Add retrieved docs to system prompt</td><td>Python (app.py)</td></tr>
+      <tr><td>4. Generate Response</td><td>LLM creates grounded answer</td><td>Azure OpenAI (gpt-4o)</td></tr>
+    </table>
+
+    <div class="note note-success">
+      <strong>Congratulations!</strong> You've built a working RAG chatbot using Azure AI Foundry services with RBAC authentication.
+    </div>
+  </section>
+
+  <!-- Troubleshooting -->
+  <section id="troubleshooting" class="card">
+    <h2>🔧 Troubleshooting</h2>
+
+    <h3>❌ "AuthenticationError" or "401 Unauthorized"</h3>
+    <ul>
+      <li>Run <code>az login</code> to refresh your credentials</li>
+      <li>Verify RBAC roles are assigned: <code>az role assignment list --assignee $(az ad signed-in-user show --query id -o tsv) --scope /subscriptions/$env:AZURE_SUBSCRIPTION_ID/resourceGroups/$env:AZURE_RESOURCE_GROUP -o table</code></li>
+      <li>Wait 2-3 minutes after assigning roles for propagation</li>
+    </ul>
+
+    <h3>❌ "Resource not found" errors</h3>
+    <ul>
+      <li>Verify resource names match in .env file</li>
+      <li>Check resources exist: <code>az resource list --resource-group $env:AZURE_RESOURCE_GROUP -o table</code></li>
+      <li>Ensure you're using the correct subscription</li>
+    </ul>
+
+    <h3>❌ "Model deployment not found"</h3>
+    <ul>
+      <li>List deployments: <code>az cognitiveservices account deployment list --name aoai-llmops-demo --resource-group $env:AZURE_RESOURCE_GROUP -o table</code></li>
+      <li>Deployment names must match exactly: <code>gpt-4o</code> and <code>text-embedding-3-large</code></li>
+    </ul>
+
+    <h3>❌ "Search index not found"</h3>
+    <ul>
+      <li>Re-run: <code>python 01-rag-chatbot/create_search_index.py</code></li>
+      <li>Verify index name in .env: <code>AZURE_SEARCH_INDEX_NAME=contoso-products</code></li>
+    </ul>
+
+    <h3>❌ Flask app won't start</h3>
+    <ul>
+      <li>Ensure virtual environment is activated: <code>.\.venv\Scripts\Activate.ps1</code></li>
+      <li>Install dependencies: <code>pip install -r 04-frontend/requirements.txt</code></li>
+      <li>Check port 5000 isn't in use</li>
+    </ul>
+
+    <h3>❌ "ImdsCredential.get_token failed" warning</h3>
+    <p style="font-size:12px;color:var(--muted);">This is <strong>normal</strong> when running locally. The SDK tries Managed Identity first (for Azure VMs), then falls back to Azure CLI credentials. Your app will still work.</p>
+  </section>
+
+  <!-- Cleanup -->
+  <section class="card">
+    <h2>🧹 Cleanup (After Workshop)</h2>
+    <p style="font-size:13px;margin-bottom:10px;">Delete all resources to avoid charges:</p>
+    <pre>az group delete --name $env:AZURE_RESOURCE_GROUP --yes --no-wait</pre>
+    <div class="note note-warn">
+      <strong>Warning:</strong> This deletes ALL resources in the resource group permanently.
+    </div>
+  </section>
+
+  <!-- What's Next -->
+  <section class="card" style="text-align:center;border-top:3px solid var(--ok);">
+    <h2 style="margin-top:0;">🎉 Workshop Complete!</h2>
+    <div class="pillrow" style="justify-content:center;margin:14px 0;">
+      <span class="pill">✅ Azure AI Foundry</span>
+      <span class="pill">✅ Azure OpenAI</span>
+      <span class="pill">✅ AI Search</span>
+      <span class="pill">✅ Vector Embeddings</span>
+      <span class="pill">✅ RAG Chatbot</span>
+      <span class="pill">✅ RBAC Auth</span>
+    </div>
+
+    <h3 style="font-size:14px;margin-bottom:8px;">📚 Next Steps to Explore</h3>
+    <ul style="text-align:left;font-size:12px;max-width:600px;margin:0 auto;">
+      <li><strong>Evaluation:</strong> Run <code>python 02-evaluation/run_evaluation.py</code> to test quality metrics</li>
+      <li><strong>Content Safety:</strong> Explore <code>03-content-safety/</code> for filter configuration</li>
+      <li><strong>Add Your Data:</strong> Edit <code>SAMPLE_DOCUMENTS</code> in create_search_index.py</li>
+      <li><strong>Deploy to Azure:</strong> Run <code>.\04-frontend\deploy-to-azure.ps1</code></li>
+      <li><strong>Prompt Flow:</strong> Import <code>01-rag-chatbot/rag-flow/</code> to AI Foundry UI</li>
+    </ul>
+
+    <h3 style="font-size:14px;margin:16px 0 8px;">📖 Learn More</h3>
+    <ul style="text-align:left;font-size:12px;max-width:600px;margin:0 auto;list-style:none;padding:0;">
+      <li>🔗 <a href="https://learn.microsoft.com/azure/ai-studio/" target="_blank">Azure AI Foundry Documentation</a></li>
+      <li>🔗 <a href="https://learn.microsoft.com/azure/ai-services/openai/" target="_blank">Azure OpenAI Service</a></li>
+      <li>🔗 <a href="https://learn.microsoft.com/azure/search/vector-search-overview" target="_blank">Azure AI Search Vector Search</a></li>
+    </ul>
+  </section>
+
+  <footer>LLMOps Workshop Playbook v2.0 | February 2026 | Azure AI Foundry</footer>
+</div>
+</body>
+</html>
