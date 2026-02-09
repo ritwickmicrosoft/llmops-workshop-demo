@@ -29,7 +29,7 @@ flowchart TB
         end
         
         subgraph Search["Azure AI Search"]
-            INDEX["contoso-products<br/>Vector Index"]
+            INDEX["walle-products<br/>Vector Index"]
             DOCS["9 Documents<br/>txt, md, pdf"]
         end
     end
