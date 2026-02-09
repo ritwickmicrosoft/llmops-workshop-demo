@@ -226,8 +226,7 @@ llmops-workshop/
 │   ├── troubleshooting-guide.md    # Support document
 │   └── faq.pdf                     # PDF document
 ├── 01-rag-chatbot/                 # RAG Chatbot Module
-│   ├── create_search_index.py      # Reads data/ folder, vectorizes, indexes
-│   └── rag-flow/                   # Prompt Flow definition (optional)
+│   └── create_search_index.py      # Reads data/ folder, vectorizes, indexes
 ├── 02-evaluation/                  # Evaluation Module
 │   ├── eval_dataset.jsonl          # Test dataset (Q&A pairs)
 │   └── run_evaluation.py           # Run quality evaluation
