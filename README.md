@@ -130,9 +130,7 @@ python app.py
 
 ### 5. Open Workshop Playbook
 
-Open `LLMOps_Workshop_Playbook.html` in your browser for detailed step-by-step instructions, or view online:
-
-https://htmlpreview.github.io/?https://github.com/ritwickmicrosoft/llmops-workshop-demo/blob/main/LLMOps_Workshop_Playbook.html
+Open [`LLMOps_Workshop_Playbook.html`](https://htmlpreview.github.io/?https://github.com/ritwickmicrosoft/llmops-workshop-demo/blob/main/LLMOps_Workshop_Playbook.html) in your browser for detailed step-by-step instructions.
 
 ## 📁 Project Structure
 
