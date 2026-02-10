@@ -26,12 +26,18 @@ flowchart TB
         subgraph OpenAI["Azure OpenAI"]
             GPT["gpt-4o<br/>Chat Completion"]
             EMB["text-embedding-3-large<br/>Embeddings"]
+            FILTER["Content Filters<br/>Hate/Sexual/Violence"]
         end
         
         subgraph Search["Azure AI Search"]
             INDEX["walle-products<br/>Vector Index"]
             DOCS["9 Documents<br/>txt, md, pdf"]
         end
+    end
+
+    subgraph LLMOps["📊 LLMOps Modules"]
+        EVAL["02-evaluation/<br/>Groundedness, Fluency"]
+        SAFETY["03-content-safety/<br/>Jailbreak Testing"]
     end
 
     subgraph DataFolder["📁 data/"]
@@ -54,6 +60,9 @@ flowchart TB
     
     FOUNDRY -.->|"Connection"| OpenAI
     FOUNDRY -.->|"Connection"| Search
+    
+    EVAL -.->|"Quality Metrics"| GPT
+    SAFETY -.->|"Test Filters"| FILTER
 ```
 
 ## 🔄 RAG Flow Diagram
