@@ -76,10 +76,7 @@
     th { background: var(--code); font-weight: 600; }
     ul, ol { margin: 8px 0; padding-left: 20px; }
     li { margin: 4px 0; font-size: 13px; }
-    .mermaid { background: var(--code); border-radius: 8px; padding: 16px; margin: 12px 0; overflow-x: auto; }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({startOnLoad:true, theme:'dark'});</script>
 </head>
 <body>
 <div class="wrap">
@@ -126,25 +123,65 @@
     <h2>🏗️ What You'll Build</h2>
     <p style="font-size:13px;margin-bottom:12px;">A complete RAG (Retrieval-Augmented Generation) chatbot for "Wall-E Electronics":</p>
     
-    <div class="mermaid">
-flowchart LR
-    subgraph Client["🖥️ User"]
-        UI["Web Chat"]
-    end
-    subgraph Backend["⚙️ Flask"]
-        APP["app.py"]
-    end
-    subgraph Azure["☁️ Azure"]
-        GPT["gpt-4o"]
-        EMB["Embeddings"]
-        IDX["Vector Index"]
-    end
-    UI -->|1. Question| APP
-    APP -->|2. Embed| EMB
-    EMB -->|3. Search| IDX
-    IDX -->|4. Context| APP
-    APP -->|5. Generate| GPT
-    GPT -->|6. Answer| UI
+    <!-- Static SVG diagram (works without JavaScript) -->
+    <div style="background: var(--code); border-radius: 8px; padding: 16px; margin: 12px 0; overflow-x: auto;">
+      <svg viewBox="0 0 800 200" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;">
+        <!-- User Box -->
+        <rect x="10" y="60" width="100" height="80" rx="8" fill="#1e3a5f" stroke="#4a9eff" stroke-width="2"/>
+        <text x="60" y="90" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">🖥️ User</text>
+        <text x="60" y="115" text-anchor="middle" fill="#ccc" font-size="11">Web Chat</text>
+        
+        <!-- Flask Box -->
+        <rect x="180" y="60" width="100" height="80" rx="8" fill="#2d4a3e" stroke="#4ade80" stroke-width="2"/>
+        <text x="230" y="90" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">⚙️ Flask</text>
+        <text x="230" y="115" text-anchor="middle" fill="#ccc" font-size="11">app.py</text>
+        
+        <!-- Azure Box (container) -->
+        <rect x="350" y="20" width="440" height="160" rx="10" fill="none" stroke="#60a5fa" stroke-width="2" stroke-dasharray="5,5"/>
+        <text x="570" y="45" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">☁️ Azure</text>
+        
+        <!-- Embeddings -->
+        <rect x="370" y="70" width="100" height="60" rx="6" fill="#4a3a5f" stroke="#a78bfa" stroke-width="2"/>
+        <text x="420" y="100" text-anchor="middle" fill="#fff" font-size="11">Embeddings</text>
+        <text x="420" y="116" text-anchor="middle" fill="#aaa" font-size="9">text-embed-3</text>
+        
+        <!-- Vector Index -->
+        <rect x="500" y="70" width="100" height="60" rx="6" fill="#3a4a5f" stroke="#60a5fa" stroke-width="2"/>
+        <text x="550" y="100" text-anchor="middle" fill="#fff" font-size="11">Vector Index</text>
+        <text x="550" y="116" text-anchor="middle" fill="#aaa" font-size="9">AI Search</text>
+        
+        <!-- GPT-4o -->
+        <rect x="630" y="70" width="100" height="60" rx="6" fill="#5f3a3a" stroke="#f87171" stroke-width="2"/>
+        <text x="680" y="100" text-anchor="middle" fill="#fff" font-size="11">gpt-4o</text>
+        <text x="680" y="116" text-anchor="middle" fill="#aaa" font-size="9">LLM</text>
+        
+        <!-- Arrows with labels -->
+        <defs><marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#888"/></marker></defs>
+        
+        <!-- 1. Question: User -> Flask -->
+        <line x1="110" y1="100" x2="175" y2="100" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="142" y="92" text-anchor="middle" fill="#aaa" font-size="9">1. Question</text>
+        
+        <!-- 2. Embed: Flask -> Embeddings -->
+        <line x1="280" y1="100" x2="365" y2="100" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="322" y="92" text-anchor="middle" fill="#aaa" font-size="9">2. Embed</text>
+        
+        <!-- 3. Search: Embeddings -> Index -->
+        <line x1="470" y1="100" x2="495" y2="100" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="482" y="92" text-anchor="middle" fill="#aaa" font-size="8">3</text>
+        
+        <!-- 4. Context: Index -> Flask (curved back) -->
+        <path d="M 550 130 Q 550 160 230 160 Q 230 145 230 140" fill="none" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="390" y="172" text-anchor="middle" fill="#aaa" font-size="9">4. Context</text>
+        
+        <!-- 5. Generate: Flask -> GPT -->
+        <path d="M 280 80 Q 320 50 680 70" fill="none" stroke="#888" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="480" y="52" text-anchor="middle" fill="#aaa" font-size="9">5. Generate</text>
+        
+        <!-- 6. Answer: GPT -> User (curved) -->
+        <path d="M 680 130 Q 680 185 60 185 Q 60 145 60 140" fill="none" stroke="#4ade80" stroke-width="2" marker-end="url(#arrowhead)"/>
+        <text x="370" y="195" text-anchor="middle" fill="#4ade80" font-size="9">6. Answer</text>
+      </svg>
     </div>
 
     <table>
